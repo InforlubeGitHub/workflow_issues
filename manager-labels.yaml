@@ -1,0 +1,60 @@
+name: Manage GitHub Labels
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # Permite execução manual
+
+jobs:
+  sync-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync Labels
+        uses: micnncim/action-label-syncer@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          manifest: |
+            [
+              {
+                "name": "bug",
+                "color": "d73a4a",
+                "description": "Indica um bug no código"
+              },
+              {
+                "name": "enhancement",
+                "color": "a2eeef",
+                "description": "Nova feature ou melhoria"
+              },
+              {
+                "name": "documentation",
+                "color": "0075ca",
+                "description": "Melhorias na documentação"
+              },
+              {
+                "name": "good first issue",
+                "color": "7057ff",
+                "description": "Bom para iniciantes"
+              },
+              {
+                "name": "help wanted",
+                "color": "008672",
+                "description": "Precisa de ajuda extra"
+              },
+              {
+                "name": "priority: high",
+                "color": "ff0000",
+                "description": "Alta prioridade"
+              },
+              {
+                "name": "priority: medium",
+                "color": "ffa500",
+                "description": "Média prioridade"
+              },
+              {
+                "name": "priority: low",
+                "color": "00ff00",
+                "description": "Baixa prioridade"
+              }
+            ]

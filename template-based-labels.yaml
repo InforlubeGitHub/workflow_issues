@@ -1,0 +1,45 @@
+name: Template Based Labels
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  template-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Issue Template
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+            
+            // Verifica se a issue usa um template
+            if (body.includes('## Bug Report')) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['bug']
+              });
+            }
+            
+            if (body.includes('## Feature Request')) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['enhancement']
+              });
+            }
+            
+            if (body.includes('## Documentation')) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['documentation']
+              });
+            }
