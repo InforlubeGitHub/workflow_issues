@@ -1,0 +1,56 @@
+name: Auto Label Issues
+
+on:
+  issues:
+    types: [opened, edited, labeled, unlabeled]
+
+jobs:
+  auto-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto Label Issues
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(label => label.name);
+            
+            // Função para adicionar label se não existir
+            async function addLabelIfNotExists(label) {
+              if (!labels.includes(label)) {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  labels: [label]
+                });
+              }
+            }
+
+            // Regras de prioridade baseadas no título
+            const title = issue.title.toLowerCase();
+            if (title.includes('urgent') || title.includes('critical')) {
+              await addLabelIfNotExists('priority: high');
+            } else if (title.includes('important')) {
+              await addLabelIfNotExists('priority: medium');
+            } else {
+              await addLabelIfNotExists('priority: low');
+            }
+
+            // Regras baseadas no corpo da issue
+            const body = issue.body.toLowerCase();
+            if (body.includes('bug') || body.includes('error') || body.includes('crash')) {
+              await addLabelIfNotExists('bug');
+            }
+            if (body.includes('feature') || body.includes('enhancement')) {
+              await addLabelIfNotExists('enhancement');
+            }
+            if (body.includes('doc') || body.includes('documentation')) {
+              await addLabelIfNotExists('documentation');
+            }
+
+            // Regra para issues sem descrição
+            if (!issue.body || issue.body.trim() === '') {
+              await addLabelIfNotExists('needs-info');
+            }
